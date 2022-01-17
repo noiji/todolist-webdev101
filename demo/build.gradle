@@ -21,7 +21,7 @@ repositories {//라이브러리를 다운로드 받는 곳
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa' 
 	implementation 'org.springframework.boot:spring-boot-starter-web'
     //lombok?
     //- 개발시간 단축을 위해 사용.
