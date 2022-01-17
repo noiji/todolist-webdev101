@@ -17,5 +17,5 @@ public class TestController {
 	public String testControllerWithPathVariables(@PathVariable(required=false) int id) { //required = false: 이 매개변수가 꼭 필요한 것은 아니라는 뜻
 		return "Hello Word! ID " + id;
 	}
-	@
+
 }
