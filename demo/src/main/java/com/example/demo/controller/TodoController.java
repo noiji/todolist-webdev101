@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -62,6 +64,57 @@ public class TodoController {
 			return ResponseEntity.ok().body(response);
 		} catch (Exception e) {
 			// (8) 혹시 예외가 나는 경우 dto대신 error에 메시지를 넣어 리턴한다.
+			String error = e.getMessage();
+			ResponseDTO<TodoDTO> response = ResponseDTO.<TodoDTO>builder().error(error).build();
+			return ResponseEntity.badRequest().body(response);
+		}
+	}
+	
+	@GetMapping
+	public ResponseEntity<?> retrieveTodo(){
+		String temporaryUserId = "temporary-user";
+		List<TodoEntity> entities = service.retrieve(temporaryUserId);
+		List<TodoDTO> dtos = entities.stream().map(TodoDTO::new).collect(Collectors.toList());
+		ResponseDTO<TodoDTO> response = ResponseDTO.<TodoDTO>builder().data(dtos).build();
+	
+		return ResponseEntity.ok().body(response);
+	
+	}
+	
+	@PutMapping
+	public ResponseEntity<?> updateTodo(@RequestBody TodoDTO dto){
+		String temporaryUserId = "temporary-user";
+		
+		TodoEntity entity = TodoDTO.toEntity(dto);
+		
+		entity.setUserId(temporaryUserId);
+		
+		List<TodoEntity> entities = service.update(entity);
+		List<TodoDTO> dtos = entities.stream().map(TodoDTO::new).collect(Collectors.toList());
+		ResponseDTO<TodoDTO> response = ResponseDTO.<TodoDTO>builder().data(dtos).build();
+	
+		return ResponseEntity.ok().body(response);
+	
+	}
+	
+	@DeleteMapping
+	public ResponseEntity<?> deleteTodo(@RequestBody TodoDTO dto){ 
+		/*
+		id로 지우는 게 사용자 입장에서는 더 쉽지 않을라나. 아 어차피 사용자가 body를 채우는 게 아니고 화면 보고 선택하겠네
+		애초에 Delete 작업시 id만 본다고 함 -> 진짜????? how? 실제로 title 또는 done만 있을 때는 삭제 작업 안되는데 아이디만 있을 때는 삭제됨. 아이디를 키로 지정한 부분이 어딜까!
+		TodoEntity에서 @Id 밑에 있는 attribute이 곧 키다. 
+		 */
+		try {
+			String temporaryUserId = "temporary-user";
+			TodoEntity entity = TodoDTO.toEntity(dto);	
+			entity.setUserId(temporaryUserId);
+			List<TodoEntity> entities = service.delete(entity);
+			List<TodoDTO> dtos = entities.stream().map(TodoDTO::new).collect(Collectors.toList());
+
+			ResponseDTO<TodoDTO> response = ResponseDTO.<TodoDTO>builder().data(dtos).build();			
+		
+			return ResponseEntity.ok().body(response);
+		} catch (Exception e) {
 			String error = e.getMessage();
 			ResponseDTO<TodoDTO> response = ResponseDTO.<TodoDTO>builder().error(error).build();
 			return ResponseEntity.badRequest().body(response);
